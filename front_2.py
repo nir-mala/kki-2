@@ -3,8 +3,6 @@ import requests
 import matplotlib.pyplot as plt
 import time
 import os
-import numpy as np
-import pandas as pd
 
 
 st.set_page_config( page_title="monitoring-kki-2025", page_icon="🌍", layout="wide")
