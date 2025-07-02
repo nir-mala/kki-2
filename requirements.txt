@@ -3,5 +3,3 @@ requests
 matplotlib
 time
 os
-numpy
-pandas
