@@ -34,15 +34,15 @@ start_monitoring_button = st.sidebar.button("START BUTTON", key="start_monitorin
 #Header
 col1, col2, col3, col4 = st.columns([1,4,4,1])
 with col1:
-    #st.image('./images/logobmrt.png', width=75)
-    st.markdown('')
+    st.image('./images/logobmrt.png', width=75)
+    #st.markdown('')
 with col2:
     st.markdown('<div class="header-text">BARELANG MARINE ROBOTICS TEAM</div', unsafe_allow_html=True)
 with col3:
     st.markdown('<div class="header-text">POLITEKNIK NEGERI BATAM</div', unsafe_allow_html=True)
 with col4:
-    #st.image('./images/logopolibatam.png', width=80)
-    st.markdown('')
+    st.image('./images/logopolibatam.png', width=80)
+    #st.markdown('')
 
 #lintasan
 if path == "Lintasan A ⚓":
@@ -52,8 +52,8 @@ elif path == "Lintasan B ⚓":
 
 #gambar lintasan    
 def gambar_lintasan_lomba():
-    #st.image('./images/lintasan.png')
-    st.markdown('')
+    st.image('./images/lintasan.png')
+    #st.markdown('')
 
 part1, part2, part3= st.columns([2.1, 1, 0.9])
 with part1:
