@@ -63,6 +63,8 @@
 .stAppViewContainer {
     background-color: #aed7ff;
 }
-header { 
-    visibility: hidden; 
+
+/* Ubah warna background header agar nyatu dengan tema */
+header[data-testid="stHeader"] {
+    background-color: #aed7ff; /* sama dengan background app kamu */
 }
