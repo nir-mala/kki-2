@@ -73,3 +73,7 @@ section[data-testid="stSidebar"] {
     max-width: 350px;
 }
 
+/* State: sidebar terlihat */
+.sidebar-visible section[data-testid="stSidebar"] {
+    display: block;
+}
