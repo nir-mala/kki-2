@@ -66,3 +66,15 @@
 header { 
     visibility: hidden; 
 }
+
+/* Hilangkan tombol collapse sidebar */
+section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"] {
+    display: none;
+}
+
+/* Paksa sidebar selalu tampil */
+section[data-testid="stSidebar"] {
+    min-width: 300px;
+    max-width: 300px;
+}
+
