@@ -69,7 +69,7 @@ header {
 
 /* Paksa sidebar selalu tampil */
 section[data-testid="stSidebar"] {
-    min-width: 300px;
-    max-width: 300px;
+    min-width: 450px;
+    max-width: 450px;
 }
 
