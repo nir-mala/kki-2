@@ -1,30 +1,35 @@
 .header-text {
     text-align: center;
-    color: #ffff;
-    background-color: #3A6E8F;
+    color: #fff;
+    background-color: #154D71;
     padding: 15px; 
+    /*font-weight: bold;*/
     border-radius: 15px;
-    margin-bottom: 1px; 
+    margin: 10px auto;   /* auto = center horizontal */
     border: 2px solid white;
-    font-size: 16px;
-    font-family: 'Montserrat', sans-serif;
+    font-size: 22px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
 }
+
 
 .judul-text {
     text-align: center;
     color: white;
-    background-color: #65A7D3;
+    background-color: #0D3B66;
     padding: 5px; 
     border-radius: 10px;
     margin-bottom: 5px; 
     border: 2px solid white;
     font-size: 14px;
-    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
 }
 
 [data-testid="stMetricValue"] {
     font-size: 16px;
-    color : #242649;
+    color : #000000;
     font-family: 'Montserrat', sans-serif;
     font-weight: bold; 
 }
@@ -36,7 +41,7 @@
 }
 
 .stButton > button {
-    background-color: #4CAF50; 
+    background-color: #4fc853; 
     color: #ffff;    
     border: 2px solid white;
     font-weight: bold; 
@@ -44,27 +49,36 @@
 
 .sidebar-text {
     text-align: center;
-    color: #FFFF;
-    background-color: #3A6E8F;
+    color: #27548A;
+    background-color: #ffff;
     padding: 10px; 
     border-radius: 15px;
-    border: 2px solid white;
-    font-size: 12px;
-    font-family: 'Montserrat', sans-serif;
+    border: 4px solid #ffffff;
+    font-weight: bold;
+    font-size: 15px;
+    font-family: 'Montserrat', serif;
 }
 
 [data-testid="stSidebar"] {
-    background-color: #7FBADC;
+    background-color: #0B3C5D;
     color: #ffff;
     font-weight: bold;
     font-family: 'Montserrat', sans-serif; 
 }
 
+/*css radio sidebar*/
+[data-testid="stSidebar"] [data-testid="stRadio"] label,
+[data-testid="stSidebar"] [data-testid="stRadio"] label span,
+[data-testid="stSidebar"] [data-testid="stRadio"] label p {
+    color: #FFFFFF !important;
+    font-family: 'Inconsolata', serif;
+}
+
 .stAppViewContainer {
-    background-color: #aed7ff;
+    background-color: #ecebeb;
 }
 
 /* Ubah warna background header agar nyatu dengan tema */
 header[data-testid="stHeader"] {
-    background-color: #aed7ff; /* sama dengan background app kamu */
+    background-color: #ecebeb; /* sama dengan background app kamu */
 }
