@@ -3,6 +3,8 @@ import requests
 import matplotlib.pyplot as plt
 import time
 import os
+import numpy as np
+import pandas as pd
 
 
 st.set_page_config( page_title="monitoring-kki-2025", page_icon="🌍", layout="wide")
@@ -25,24 +27,24 @@ def backend_data():
     else:
         st.error(f"Failed: {response.status_code}")
         return []
-
-#Sidebar
+    
+#
+st.sidebar.markdown("<br><br>", unsafe_allow_html=True)  # kasih spasi ke bawah
 st.sidebar.markdown('<div class="sidebar-text">NAVIGASI LINTASAN</div', unsafe_allow_html=True)
+#st.sidebar.markdown("")
 path = st.sidebar.radio("", ["Lintasan A ⚓", "Lintasan B ⚓"])
 start_monitoring_button = st.sidebar.button("START BUTTON", key="start_monitoring_button")
 
 #Header
-col1, col2, col3, col4 = st.columns([1,4,4,1])
+col1, col2, col3, col4 = st.columns([0.6,4,4,1])
 with col1:
-    st.image('./images/logobmrt.png', width=75)
-    #st.markdown('')
+    st.image('./images/logobmrt.png', width=100)
 with col2:
     st.markdown('<div class="header-text">BARELANG MARINE ROBOTICS TEAM</div', unsafe_allow_html=True)
 with col3:
     st.markdown('<div class="header-text">POLITEKNIK NEGERI BATAM</div', unsafe_allow_html=True)
 with col4:
-    st.image('./images/logopolibatam.png', width=80)
-    #st.markdown('')
+    st.image('./images/logopolibatam.png', width=105)
 
 #lintasan
 if path == "Lintasan A ⚓":
@@ -53,7 +55,6 @@ elif path == "Lintasan B ⚓":
 #gambar lintasan    
 def gambar_lintasan_lomba():
     st.image('./images/lintasan.png')
-    #st.markdown('')
 
 part1, part2, part3= st.columns([2.1, 1, 0.9])
 with part1:
@@ -78,7 +79,7 @@ with part1:
     with col4:
         cog_placeholder = col4.metric("COG", "Loading...")  
 
-    st.markdown("<h5 class='judul-text'>TRAJECTORY MAP</h5>", unsafe_allow_html=True)
+    st.markdown('<div class="judul-text">TRAJECTORY MAP</div>', unsafe_allow_html=True)
 
 
     #gambar map trajectory
@@ -169,13 +170,13 @@ with part1:
                     day = data.get('Day')
                     date = data.get('Date')
                     time_value = data.get('Time')
-                    latt = data.get('Lattitude')
+                    latt = data.get('Latitude')
                     lon = data.get('Longitude')
                     yaw = data.get('Yaw')
 
                     if path == "Lintasan B ⚓":
-                        x = data.get('Position_X') + 335
-                        y = data.get('Position_Y') + 115
+                        x = data.get('Position_X') 
+                        y = data.get('Position_Y') 
                         
                     else:
                         x = data.get('Position_X') + 2185
@@ -224,9 +225,9 @@ with part2:
 #image
 with part3:
     st.markdown('<div class="judul-text">SURFACE IMAGE</div', unsafe_allow_html=True)
-    #st.image('./images/surface.jpg', width=330)
+    st.image('./images/surface.jpg', width=330)
 
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div', unsafe_allow_html=True)
-    #st.image('./images/underwater.jpg', width=330)
+    st.image('./images/underwater.jpg', width=330)
 
 
