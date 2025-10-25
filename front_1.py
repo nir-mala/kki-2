@@ -1,230 +1,350 @@
 import streamlit as st
 import requests
 import matplotlib.pyplot as plt
-import time
-import os
-import numpy as np
 import pandas as pd
+from streamlit_autorefresh import st_autorefresh
+from collections import deque
+import os
 
-st.set_page_config( page_title="monitoring-kki-2025", page_icon="🌍", layout="wide")
+#
+st.set_page_config(page_title="monitoring kki 2025", page_icon="🌍", layout="wide")
 
+# CSS
 with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# dari back4app akun kki
-# Back4App credentials
-BASE_URL    = "https://parseapi.back4app.com/classes/kki_25"
-headers     = {
-        "X-Parse-Application-Id"    :'vuYjV2nmBIiKkc1AbXx2f8qJmTyPQF8MkBDAHbr7',
-        "X-Parse-REST-API-Key"      :'ae47mM5ZIj9NXvUUADNa0wYWhLibdBL5PuTCuVJ4',
-    }
+# Back4App endpoint
+BASE_URL = "https://parseapi.back4app.com/classes/Trial"
+HEADERS = {
+    "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
+    "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
+}
 
 #Endpoint Backend
 def backend_data():
-    response = requests.get(BASE_URL, headers=headers, params={"order": "-createdAt", "limit": 1})
-    if response.status_code == 200:
-        return response.json().get("results", [])
-    else:
-        st.error(f"Failed: {response.status_code}")
+    try:
+        resp = requests.get(BASE_URL, headers=HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
+        if resp.status_code == 200:
+            return resp.json().get("results", [])
+        else:
+            st.warning(f"⚠️ Gagal fetch data: {resp.status_code}")
+            return []
+    except requests.exceptions.RequestException as e:
+        st.error(f"backend tidak terhubung {e}")
         return []
 
-# Sidebar    
-st.sidebar.markdown("<br><br>", unsafe_allow_html=True)  # kasih spasi ke bawah
-st.sidebar.markdown('<div class="sidebar-text">NAVIGASI LINTASAN</div', unsafe_allow_html=True)
-st.sidebar.markdown("") #nambahin space kosong
-path = st.sidebar.radio("--", ["Lintasan A ⚓", "Lintasan B ⚓"], label_visibility="collapsed")
-start_monitoring_button = st.sidebar.button("START BUTTON", key="start_monitoring_button")
 
-#Header
-col1, col2, col3, col4 = st.columns([0.6,4,4,1])
+# -------------------------
+# session state init
+# -------------------------
+if "run" not in st.session_state:
+    st.session_state.run = False
+if "data" not in st.session_state:
+    st.session_state.data = deque(maxlen=200)
+if "trajectory_x" not in st.session_state:
+    st.session_state.trajectory_x = []
+if "trajectory_y" not in st.session_state:
+    st.session_state.trajectory_y = []
+if "last_id" not in st.session_state:
+    st.session_state.last_id = None
+if "current_path" not in st.session_state:
+    st.session_state.current_path = None
+if "akusisi_nilai" not in st.session_state:
+    st.session_state.akusisi_nilai = None
+if "checkpoint_active" not in st.session_state:
+    st.session_state.checkpoint_active = False
+if "last_checkpoint" not in st.session_state:
+    st.session_state.last_checkpoint = 0
+
+# Sidebar    
+st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+st.sidebar.markdown('<div class="sidebar-text">NAVIGASI LINTASAN</div>', unsafe_allow_html=True)
+path = st.sidebar.radio("--", ["Lintasan A ⚓", "Lintasan B ⚓"], label_visibility="collapsed")
+
+start_monitoring_button = st.sidebar.button("START BUTTON", key="start_monitoring_button")
+stop_monitoring_button = st.sidebar.button("STOP BUTTON", key="stop_monitoring_button")
+
+#fungsi button
+if start_monitoring_button:
+    st.session_state.run = True
+    st.session_state.data.clear()
+    st.session_state.trajectory_x.clear()
+    st.session_state.trajectory_y.clear()
+    st.session_state.akusisi_nilai = 0
+    st.session_state.last_checkpoint = 0
+    st.session_state.last_id = None
+    st.sidebar.success("Monitoring started...")
+
+if stop_monitoring_button:
+    st.session_state.run = False
+    st.sidebar.warning("Monitoring stopped.")
+
+# Reset data jika path diganti
+if st.session_state.current_path != path:
+    st.session_state.current_path = path
+    st.session_state.data.clear()
+    st.session_state.trajectory_x.clear()
+    st.session_state.trajectory_y.clear()
+    st.session_state.akusisi_nilai = 0
+    st.session_state.last_checkpoint = 0
+    st.session_state.last_id = None
+
+    if path == "Lintasan A ⚓":
+        st.session_state.start_x, st.session_state.start_y = 2185, 150
+    else:
+        st.session_state.start_x, st.session_state.start_y = 335, 150
+
+# Header
+col1, col2, col3, col4 = st.columns([0.6, 4, 4, 1])
 with col1:
     st.image('./images/logobmrt.png', width=100)
 with col2:
-    st.markdown('<div class="header-text">BARELANG MARINE ROBOTICS TEAM</div', unsafe_allow_html=True)
+    st.markdown('<div class="header-text">BARELANG MARINE ROBOTICS TEAM</div>', unsafe_allow_html=True)
 with col3:
-    st.markdown('<div class="header-text">POLITEKNIK NEGERI BATAM</div', unsafe_allow_html=True)
+    st.markdown('<div class="header-text">POLITEKNIK NEGERI BATAM</div>', unsafe_allow_html=True)
 with col4:
     st.image('./images/logopolibatam.png', width=105)
 
-#lintasan
+# Judul Lintasan
 if path == "Lintasan A ⚓":
-    st.markdown('<div class="judul-text">LINTASAN A</div', unsafe_allow_html=True)
-elif path == "Lintasan B ⚓":
-    st.markdown('<div class="judul-text">LINTASAN B</div', unsafe_allow_html=True)
+    st.markdown('<div class="judul-text">LINTASAN A</div>', unsafe_allow_html=True)
+else:
+    st.markdown('<div class="judul-text">LINTASAN B</div>', unsafe_allow_html=True)
 
-#gambar lintasan    
-def gambar_lintasan_lomba():
-    st.image('./images/lintasan.png')
+# Ambil data backend 
+if st.session_state.run:
+    st_autorefresh(interval=5000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
 
-part1, part2, part3= st.columns([2.1, 1, 0.9])
+    latest_list = backend_data()
+    if latest_list:
+        latest = latest_list[0]
+        unique_id = latest.get("objectId") or latest.get("createdAt")
+        if unique_id and unique_id != st.session_state.last_id:
+            st.session_state.last_id = unique_id
+            st.session_state.data.append(latest)
+
+            def safe_float(v): #fungsi mengubah string menjadi float
+                try:
+                    return float(v)
+                except Exception:
+                    return None
+
+            #mendefinikan data x y terbaru/ pergeseran yang berasal dari sensor
+            x = safe_float(latest.get("x"))
+            y = safe_float(latest.get("y"))
+
+            #akan lanjut kesini jika data x y diterima, kalau salah satu tidak ada maka tidak berjalan
+            if x is not None and y is not None:
+                # benambhan posisi awal dengan penggeserannya
+                x_abs = st.session_state.start_x + x
+                y_abs = st.session_state.start_y + y
+
+                # Tambahkan hanya jika data berubah signifikan
+                if (
+                    len(st.session_state.trajectory_x) == 0
+                    or abs(x_abs - st.session_state.trajectory_x[-1]) > 1e-3
+                    or abs(y_abs - st.session_state.trajectory_y[-1]) > 1e-3
+                ):  
+                    #menyimpan x y ke trajectory
+                    st.session_state.trajectory_x.append(x_abs)
+                    st.session_state.trajectory_y.append(y_abs)
+
+# Bola lintasan
+def posisi_floating_ball(path):
+    if path == "A":
+        green_positions = [(330, 960), (330, 1310), (450, 1715), (1040, 2250), (1200, 2250),
+                           (1360, 2250), (1520, 2250), (2325, 1465), (2180, 1160), (2260, 855)]
+        red_positions = [(180, 960), (180, 1310), (300, 1715), (1040, 2100), (1200, 2100),
+                         (1360, 2100), (1520, 2100), (2175, 1465), (2030, 1160), (2110, 855)]
+    elif path == "B":
+        red_positions = [(440, 855), (520, 1160), (375, 1465), (980, 2100), (1140, 2100),
+                         (1300, 2100), (1460, 2100), (2300, 1715), (2420, 1310), (2420, 960)]
+        green_positions = [(240, 855), (320, 1160), (175, 1465), (980, 2300), (1140, 2300),
+                           (1300, 2300), (1460, 2300), (2100, 1715), (2220, 1310), (2220, 960)]
+    return red_positions, green_positions
+
+
+# Plot koordinat lintasan
+def koordinat_kartesius(path):
+    fig, ax = plt.subplots(figsize=(13, 13))
+    ax.set_xlim(0, 2600)
+    ax.set_ylim(0, 2600)
+    ax.set_xticks(range(0, 2600, 200))
+    ax.set_yticks(range(0, 2600, 200))
+    ax.grid(True, linestyle='--', alpha=0.4)
+    ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
+
+    if path == "Lintasan A ⚓":
+        start_x, start_y = 2185, 150     #menetukan titik awal posisi x,y
+        red_positions, green_positions = posisi_floating_ball("A")
+        check_points = [(1800, 900), (1300, 1600), (500, 2000)] # posisi check point lintasan A
+        ax.add_patch(plt.Rectangle((2100, 65), 170, 100, color='red', fill=True))
+        ax.add_patch(plt.Rectangle((520, 300), 100, 50, color='blue', fill=True))
+        ax.add_patch(plt.Rectangle((300, 620), 100, 50, color='green', fill=True))
+
+    elif path == "Lintasan B ⚓":
+        start_x, start_y = 335, 150     #menetukan titik awal posisi x,y
+        red_positions, green_positions = posisi_floating_ball("B")
+        check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
+        ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
+        ax.add_patch(plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True))
+        ax.add_patch(plt.Rectangle((2100, 620), 100, 50, color='green', fill=True))
+
+    # Tambahkan bola merah dan hijau
+    for pos in red_positions:
+        ax.add_patch(plt.Circle(pos, 15, color='red'))
+    for pos in green_positions:
+        ax.add_patch(plt.Circle(pos, 15, color='green'))
+
+    # Trajektori
+    if len(st.session_state.trajectory_x) > 0:
+        ax.plot(
+            [start_x] + st.session_state.trajectory_x,
+            [start_y] + st.session_state.trajectory_y,
+            color='black', linestyle='--', marker='o', markersize=2
+        )
+        ax.scatter(st.session_state.trajectory_x[-1],
+                   st.session_state.trajectory_y[-1],
+                   color='yellow', s=200, edgecolors='black', label='Posisi Kapal')
+        ax.legend()
+    else:
+        ax.scatter(start_x, start_y, color='yellow', s=200, edgecolors='black', label='Titik Awal')
+        ax.legend()
+
+    return fig
+
+# Layout utama---
+part1, part2, part3 = st.columns([2.1, 1, 0.9])
+
+# Part 1: GEO + MAP
 with part1:
-    #Informasi geo-tag
-    st.markdown('<div class="judul-text">GEO-TAG INFO</div', unsafe_allow_html=True)
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-    with col1:
-        day_placeholder = col1.metric("Day", "Loading...")
-    with col2:
-        date_placeholder = col2.metric("Date", "Loading...")
-    with col3:
-        time_placeholder = col3.metric("Time", "Loading...")
-    with col4:
-        position_placeholder = col4.metric("Position [x,y]", "Loading...") 
-    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-    with col1:
-        sog_knot_placeholder = col1.metric("Coordinate", "Loading...")
-    with col2:
-        sog_kmh_placeholder = col2.metric("SOG [Knot]", "Loading...")
-    with col3:
-        coordinate_placeholder = col3.metric("SOG [Km/h]", "Loading...")
-    with col4:
-        cog_placeholder = col4.metric("COG", "Loading...")  
+    st.markdown('<div class="judul-text">GEO-TAG INFO</div>', unsafe_allow_html=True)
+
+    # metric placeholders
+    c1, c2, c3, c4 = st.columns(4)
+    day_ph = c1.metric("Day", "—")
+    date_ph = c2.metric("Date", "—")
+    time_ph = c3.metric("Time", "—")
+    pos_ph = c4.metric("Position [x,y]", "—")
+
+    c1, c2, c3, c4 = st.columns(4)
+    sog_knot_ph = c1.metric("SOG [Knot]", "—")
+    sog_kmh_ph = c2.metric("SOG [Km/h]", "—")
+    coord_ph = c3.metric("Coordinate", "—")
+    cog_ph = c4.metric("COG", "—")
+
+    if len(st.session_state.data) > 0:
+        last = st.session_state.data[-1]
+        sog_knot_ph.metric("SOG [Knot]", f"{last.get('SOG_Knot', '—')} knot")
+        sog_kmh_ph.metric("SOG [Km/h]", f"{last.get('SOG_kmperhours', '—')} km/h")
+        cog_ph.metric("COG", f"{last.get('COG', '—')}°")
+        day_ph.metric("Day", last.get("Day", last.get("createdAt", "—")))
+        date_ph.metric("Date", last.get("Date", last.get("createdAt", "—")))
+        time_ph.metric("Time", last.get("Time", last.get("createdAt", "—")))
+        coord_ph.metric("Coordinate", f"S{last.get('Latitude', '—')} E{last.get('Longitude', '—')}")
+        pos_ph.metric("Position [x,y]", f"{last.get('x', '—')}, {last.get('y', '—')}")
 
     st.markdown('<div class="judul-text">TRAJECTORY MAP</div>', unsafe_allow_html=True)
+    fig = koordinat_kartesius(path)
+    st.pyplot(fig)
 
-    #gambar map trajectory
-    def koordinat_kartesius(path):
-        fig, ax = plt.subplots(figsize=(13, 13))
-        ax.set_xlim(0, 2500)
-        ax.set_ylim(0, 2500)
-        ax.set_xticks(range(0, 2600, 100))
-        ax.set_yticks(range(0, 2600, 100))
-        ax.grid(True)
-    
-        if path == "Lintasan A ⚓":
-            #Titik nol : x = 2185, y = 115
-            rectangle = plt.Rectangle((2100, 65), 170, 100, color='red', fill=True)
-            red_positions, green_positions = posisi_floating_ball("A")
-
-            rectangle = plt.Rectangle((2100, 65), 170, 100, color='red', fill=True)
-            ax.add_patch(rectangle)
-
-            blue_rectangle = plt.Rectangle((520, 300), 100, 50, color='blue', fill=True)
-            ax.add_patch(blue_rectangle)
-
-            small_green_rectangle = plt.Rectangle((300, 620), 100, 50, color='green', fill=True)
-            ax.add_patch(small_green_rectangle)
-
-        elif path == "Lintasan B ⚓":
-            #Titik nol : x = 335, y = 115
-            rectangle = plt.Rectangle((250, 65), 170, 100, color='green', fill=True)
-            red_positions, green_positions = posisi_floating_ball("B")
-            
-            rectangle = plt.Rectangle((250, 65), 170, 100, color='green', fill=True)
-            ax.add_patch(rectangle)
-
-            blue_rectangle = plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True)
-            ax.add_patch(blue_rectangle)
-
-            small_green_rectangle = plt.Rectangle((2100, 620), 100, 50, color='green', fill=True)
-            ax.add_patch(small_green_rectangle)
-        else:
-            gambar_lintasan_lomba()
-            return None, None
-
-        ax.add_patch(rectangle)
-        for pos in red_positions:
-            ax.add_patch(plt.Circle(pos, 25, color='red', fill=True))
-        for pos in green_positions:
-            ax.add_patch(plt.Circle(pos, 25, color='green', fill=True))
-
-        return fig, ax
-
-    def posisi_floating_ball(path):
-        if path == "A":
-            green_positions = [(330, 960), (330, 1310), (450, 1715), (1040, 2250), (1200, 2250),
-                            (1360, 2250), (1520, 2250), (2325, 1465), (2180, 1160), (2260, 855)]
-            red_positions = [(180, 960), (180, 1310), (300, 1715), (1040, 2100), (1200, 2100),
-                            (1360, 2100), (1520, 2100), (2175, 1465), (2030, 1160), (2110, 855)]
-        elif path == "B":
-            red_positions = [(390, 855), (470, 1160), (325, 1465), (980, 2100), (1140, 2100),
-                            (1300, 2100), (1460, 2100), (2200, 1715), (2320, 1310), (2320, 960)]
-            green_positions = [(240, 855), (320, 1160), (175, 1465), (980, 2250), (1140, 2250),
-                            (1300, 2250), (1460, 2250), (2050, 1715), (2170, 1310), (2170, 960)]
-        return red_positions, green_positions
-
-    plot_placeholder = st.empty()
-    image_placeholder = st.empty()
-    fig, ax = koordinat_kartesius(path)
-
-    #Update data
-    table_entries = [] 
-    trajectory_x = []
-    trajectory_y = []
-    floating_ball_count = 0
-    trajectory_line, = ax.plot([], [], color='black', linestyle='--', marker='o', markersize=3)
-    finished = False
-
-    def update_plot():
-        global trajectory_x, trajectory_y, floating_ball_count, finished, table_placeholder
-        data = backend_data()
-
-        if data:
-            for data in data:
-                try:
-                    nilai_x = data.get('x')
-                    nilai_y = data.get('y')
-                    knot = data.get('SOG_Knot')
-                    km_per_hours = data.get('SOG_kmperhours')
-                    cog = data.get('COG')
-                    day = data.get('Day')
-                    date = data.get('Date')
-                    time_value = data.get('Time')
-                    latt = data.get('Latitude')
-                    lon = data.get('Longitude')
-                    yaw = data.get('Yaw')
-
-                    if path == "Lintasan B ⚓":
-                        x = data.get('x') + 335
-                        y = data.get('y') +115
-                        
-                    else:
-                        x = data.get('x') + 2185
-                        y = data.get('y') + 115
-                        
-                    trajectory_x.append(x)
-                    trajectory_y.append(y)
-                    trajectory_line.set_data(trajectory_x, trajectory_y)
-                    #heading_kapal(ax, x, y, yaw)
-                    plot_placeholder.pyplot(fig)
-
-                    sog_knot_placeholder.metric("SOG [Knot]", f"{knot} knot")
-                    sog_kmh_placeholder.metric("SOG [Km/h]", f"{km_per_hours} km/h")
-                    cog_placeholder.metric("COG", f"{cog}°")
-                    day_placeholder.metric("Day", day)
-                    date_placeholder.metric("Date", date)
-                    time_placeholder.metric("Time", time_value)
-                    coordinate_placeholder.metric("Coordinate", f" S{latt}  E{lon}")
-                    position_placeholder.metric("Position [x,y]",f"{nilai_x}, {nilai_y}")
-
-
-                except (TypeError, KeyError) as e:
-                    st.error(f"Error processing data: {e}")          
-        else:
-            st.warning("No data received.")
-
-#Position-log
+# Part 2: POSITION LOG
 with part2:
-    st.markdown('<div class="judul-text">POSITION-LOG</div', unsafe_allow_html=True)
-    table_placeholder = st.empty()  
+    st.markdown('<div class="judul-text">POSITION-LOG</div>', unsafe_allow_html=True)
+    
+    if len(st.session_state.data) > 0:
+        df = pd.DataFrame(list(st.session_state.data))
 
-with part1:
-    # Main loop
-    if start_monitoring_button:
-        st.session_state.monitoring_active = True
-        st.sidebar.markdown('<style>div.stButton > button {background-color: #2E7431; color: white;}</style>', unsafe_allow_html=True)
-        st.text("Monitoring started...")
-        while True:
-            update_plot()
-            #foto_sbox()
-            #foto_ubox()
-            time.sleep(1)       
+        # Pilih hanya kolom dari 'Day' sampai 'Longitude'
+        cols = [
+            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Latitude', 'Longitude'
+        ]
+
+        # Tampilkan hanya kolom yang tersedia di df
+        available_cols = [c for c in cols if c in df.columns]
+
+        # Menampilkan 20 data terakhir dengan kolom terbatas
+        st.dataframe(df[available_cols].tail(20).iloc[::-1].reset_index(drop=True))
     else:
-        gambar_lintasan_lomba()
+        st.info("Belum ada data yang ditampilkan. Tekan START untuk memulai monitoring.")
 
-#image
+    # --- CHECKPOINT INDICATOR ---
+    st.markdown('<div class="judul-text">CHECKPOINT</div>', unsafe_allow_html=True)
+
+    checkpoints_A = [
+        (2110, 2260, 840, 870),       # A1
+        (2030, 2180, 1145, 1175),     # A2
+        (2175, 2325, 1400, 1600),     # A3
+    ]
+
+    checkpoints_B = [
+        (240, 430, 800, 1000),         # B1
+        (320, 470, 1145, 1175),       # B2
+        (160, 400, 1400, 1500),       # B3
+        (900, 1100, 2000, 2400),       # B4
+        (1100, 1300, 2000, 2400),       # B5
+        (1300, 1500, 2000, 2400),       # B6
+        (1500, 1700, 2000, 2400),       # B7
+        (2000, 2400, 1600, 1800),       # B8
+        (2200, 2450, 1200, 1400),       # B9
+        (2200, 2450, 1600, 1800),       # B10
+    ]
+
+    # Pilih lintasan aktif dari session_state
+    #lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
+    checkpoints = checkpoints_A if path == "Lintasan A ⚓" else checkpoints_B
+
+    # --- LOGIKA PENINGKATAN NILAI ---
+    if len(st.session_state.data) > 0:
+        last = st.session_state.data[-1]
+        try:
+            x_val = float(last.get("x", 0))
+            y_val = float(last.get("y", 0))
+
+            # Posisi absolut
+            x_abs = st.session_state.start_x + x_val
+            y_abs = st.session_state.start_y + y_val
+
+            # Cek checkpoint aktif sekarang
+            checkpoint_now = 0
+            for i, (xmin, xmax, ymin, ymax) in enumerate(checkpoints, start=1):
+                if xmin < x_abs < xmax and ymin < y_abs < ymax:
+                    checkpoint_now = i
+                    break
+
+            # Jika kapal MASUK ke checkpoint baru
+            if checkpoint_now != 0 and not st.session_state.checkpoint_active:
+                if checkpoint_now != st.session_state.last_checkpoint:
+                    st.session_state.akusisi_nilai += 1
+                    st.session_state.last_checkpoint = checkpoint_now
+                    st.session_state.checkpoint_active = True
+
+            # Jika kapal KELUAR dari semua checkpoint → reset flag
+            elif checkpoint_now == 0:
+                st.session_state.checkpoint_active = False
+                st.session_state.last_checkpoint = 0
+
+        except Exception:
+            pass
+    
+    # Tampilkan hasil
+    st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
+
+
+# Part 3: IMAGES
 with part3:
-    st.markdown('<div class="judul-text">SURFACE IMAGE</div', unsafe_allow_html=True)
-    st.image('./images/surface.jpg', width=330)
+        # SURFACE IMAGE
+    st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
+    surface_path = './images/sbox1.jpg'
+    if os.path.exists(surface_path):
+        st.image(surface_path)
+    else:
+        st.image('./images/surface.jpg')  # gambar cadangan
 
-    st.markdown('<div class="judul-text">UNDERWATER IMAGE</div', unsafe_allow_html=True)
-    st.image('./images/underwater.jpg', width=330)
+    # UNDERWATER IMAGE
+    st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
+    underwater_path = './images/ubox.jpg'
+    if os.path.exists(underwater_path):
+        st.image(underwater_path)
+    else:
+        st.image('./images/underwater.jpg')  # gambar cadangan
