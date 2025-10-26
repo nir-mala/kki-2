@@ -74,6 +74,15 @@
     font-family: 'Inconsolata', serif;
 }
 
+/*indikator checkpoint*/
+.ind-text {
+    text-align: center;
+    color: rgb(0, 0, 0);
+    background-color: #ecebeb;
+    font-size: 18px;
+    font-weight: 600;
+}
+
 .stAppViewContainer {
     background-color: #ecebeb;
 }
