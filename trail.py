@@ -259,7 +259,7 @@ with part2:
 
         # Pilih hanya kolom dari 'Day' sampai 'Longitude'
         cols = [
-            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Latittude', 'Longitude'
+            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Lattitude', 'Longitude'
         ]
 
         # Tampilkan hanya kolom yang tersedia di df
