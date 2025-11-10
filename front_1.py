@@ -14,10 +14,10 @@ with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Back4App endpoint
-BASE_URL = "https://parseapi.back4app.com/classes/Trial"
+BASE_URL = "https://parseapi.back4app.com/classes/kki_trial"
 HEADERS = {
-    "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
-    "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
+    "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
+    "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
 }
 
 #Endpoint Backend
@@ -59,7 +59,7 @@ if "last_checkpoint" not in st.session_state:
 # Sidebar    
 st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
 st.sidebar.markdown('<div class="sidebar-text">NAVIGASI LINTASAN</div>', unsafe_allow_html=True)
-path = st.sidebar.radio("--", ["Lintasan A ⚓", "Lintasan B ⚓"], label_visibility="collapsed")
+path = st.sidebar.radio("--", ["Lintasan A ⚓", "Lintasan B ⚓", "kolsu"], label_visibility="collapsed")
 
 start_monitoring_button = st.sidebar.button("START BUTTON", key="start_monitoring_button")
 stop_monitoring_button = st.sidebar.button("STOP BUTTON", key="stop_monitoring_button")
@@ -89,10 +89,15 @@ if st.session_state.current_path != path:
     st.session_state.last_checkpoint = 0
     st.session_state.last_id = None
 
-    if path == "Lintasan A ⚓":
-        st.session_state.start_x, st.session_state.start_y = 2185, 150
-    else:
-        st.session_state.start_x, st.session_state.start_y = 335, 150
+if path == "Lintasan A ⚓":
+    st.session_state.start_x, st.session_state.start_y = 2185, 150
+
+elif path == "Lintasan B ⚓":
+    st.session_state.start_x, st.session_state.start_y = 335, 150
+
+elif path == "kolsu":
+    st.session_state.start_x, st.session_state.start_y = 1200, 1200   # ← silakan sesuaikan
+
 
 # Header
 col1, col2, col3, col4 = st.columns([0.6, 4, 4, 1])
@@ -108,8 +113,10 @@ with col4:
 # Judul Lintasan
 if path == "Lintasan A ⚓":
     st.markdown('<div class="judul-text">LINTASAN A</div>', unsafe_allow_html=True)
-else:
+elif path == "Lintasan B ⚓":
     st.markdown('<div class="judul-text">LINTASAN B</div>', unsafe_allow_html=True)
+elif path == "kolsu":
+    st.markdown('<div class="judul-text">KEMAJUAN TAHAP 2</div>', unsafe_allow_html=True)
 
 # Ambil data backend 
 if st.session_state.run:
@@ -135,7 +142,7 @@ if st.session_state.run:
 
             #akan lanjut kesini jika data x y diterima, kalau salah satu tidak ada maka tidak berjalan
             if x is not None and y is not None:
-                # benambhan posisi awal dengan penggeserannya
+                # Penambhan posisi awal dengan penggeserannya
                 x_abs = st.session_state.start_x + x
                 y_abs = st.session_state.start_y + y
 
@@ -161,34 +168,55 @@ def posisi_floating_ball(path):
                          (1300, 2100), (1460, 2100), (2300, 1715), (2420, 1310), (2420, 960)]
         green_positions = [(240, 855), (320, 1160), (175, 1465), (980, 2300), (1140, 2300),
                            (1300, 2300), (1460, 2300), (2100, 1715), (2220, 1310), (2220, 960)]
+    elif path == "k":
+        red_positions = []
+        green_positions = []
     return red_positions, green_positions
 
 
 # Plot koordinat lintasan
 def koordinat_kartesius(path):
     fig, ax = plt.subplots(figsize=(13, 13))
-    ax.set_xlim(0, 2600)
-    ax.set_ylim(0, 2600)
-    ax.set_xticks(range(0, 2600, 200))
-    ax.set_yticks(range(0, 2600, 200))
-    ax.grid(True, linestyle='--', alpha=0.4)
-    ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
 
     if path == "Lintasan A ⚓":
+        ax.set_xlim(0, 2600)
+        ax.set_ylim(0, 2600)
+        ax.set_xticks(range(0, 2600, 200))
+        ax.set_yticks(range(0, 2600, 200))
+        ax.grid(True, linestyle='--', alpha=0.4)
+        ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
+
         start_x, start_y = 2185, 150     #menetukan titik awal posisi x,y
         red_positions, green_positions = posisi_floating_ball("A")
-        check_points = [(1800, 900), (1300, 1600), (500, 2000)] # posisi check point lintasan A
         ax.add_patch(plt.Rectangle((2100, 65), 170, 100, color='red', fill=True))
         ax.add_patch(plt.Rectangle((520, 300), 100, 50, color='blue', fill=True))
         ax.add_patch(plt.Rectangle((300, 620), 100, 50, color='green', fill=True))
 
     elif path == "Lintasan B ⚓":
+        ax.set_xlim(0, 2600)
+        ax.set_ylim(0, 2600)
+        ax.set_xticks(range(0, 2600, 200))
+        ax.set_yticks(range(0, 2600, 200))
+        ax.grid(True, linestyle='--', alpha=0.4)
+        ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
+
         start_x, start_y = 335, 150     #menetukan titik awal posisi x,y
         red_positions, green_positions = posisi_floating_ball("B")
-        check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
         ax.add_patch(plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True))
         ax.add_patch(plt.Rectangle((2100, 620), 100, 50, color='green', fill=True))
+
+    elif path == "kolsu":
+        ax.set_xlim(0, 1000)
+        ax.set_ylim(0, 1000)
+        ax.set_xticks(range(0, 1000, 100))
+        ax.set_yticks(range(0, 1000, 100))
+        ax.grid(True, linestyle='--', alpha=0.4)
+        ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
+
+        start_x, start_y = 500, 50 
+        red_positions, green_positions = posisi_floating_ball("k")
+
 
     # Tambahkan bola merah dan hijau
     for pos in red_positions:
@@ -212,6 +240,8 @@ def koordinat_kartesius(path):
         ax.legend()
 
     return fig
+
+
 
 # Layout utama---
 part1, part2, part3 = st.columns([2.1, 1, 0.9])
