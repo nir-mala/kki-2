@@ -96,7 +96,7 @@ elif path == "Lintasan B ⚓":
     st.session_state.start_x, st.session_state.start_y = 335, 150
 
 elif path == "kolsu":
-    st.session_state.start_x, st.session_state.start_y = 1200, 1200   # ← silakan sesuaikan
+    st.session_state.start_x, st.session_state.start_y = 500, 50   # ← silakan sesuaikan
 
 
 # Header
