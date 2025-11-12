@@ -115,7 +115,7 @@ else:
 
 # Ambil data backend 
 if st.session_state.run:
-    st_autorefresh(interval=5000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
+    st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
 
     latest_list = backend_data()
     if latest_list:
