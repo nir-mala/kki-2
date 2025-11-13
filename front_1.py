@@ -27,7 +27,7 @@ def backend_data():
         if resp.status_code == 200:
             return resp.json().get("results", [])
         else:
-            st.warning(f"⚠️ Gagal fetch data: {resp.status_code}")
+            st.warning(f"Gagal fetch data: {resp.status_code}")
             return []
     except requests.exceptions.RequestException as e:
         st.error(f"backend tidak terhubung {e}")
@@ -59,7 +59,7 @@ if "last_checkpoint" not in st.session_state:
 # Sidebar    
 st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
 st.sidebar.markdown('<div class="sidebar-text">NAVIGASI LINTASAN</div>', unsafe_allow_html=True)
-path = st.sidebar.radio("--", ["Lintasan A ⚓", "Lintasan B ⚓", "kolsu"], label_visibility="collapsed")
+path = st.sidebar.radio("--", ["Lintasan A ⚓", "Lintasan B ⚓"], label_visibility="collapsed")
 
 start_monitoring_button = st.sidebar.button("START BUTTON", key="start_monitoring_button")
 stop_monitoring_button = st.sidebar.button("STOP BUTTON", key="stop_monitoring_button")
@@ -95,10 +95,6 @@ if path == "Lintasan A ⚓":
 elif path == "Lintasan B ⚓":
     st.session_state.start_x, st.session_state.start_y = 335, 150
 
-elif path == "kolsu":
-    st.session_state.start_x, st.session_state.start_y = 500, 50   # ← silakan sesuaikan
-
-
 # Header
 col1, col2, col3, col4 = st.columns([0.6, 4, 4, 1])
 with col1:
@@ -115,12 +111,10 @@ if path == "Lintasan A ⚓":
     st.markdown('<div class="judul-text">LINTASAN A</div>', unsafe_allow_html=True)
 elif path == "Lintasan B ⚓":
     st.markdown('<div class="judul-text">LINTASAN B</div>', unsafe_allow_html=True)
-elif path == "kolsu":
-    st.markdown('<div class="judul-text">KEMAJUAN TAHAP 2</div>', unsafe_allow_html=True)
 
 # Ambil data backend 
 if st.session_state.run:
-    st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
+    st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (2 detik)
 
     latest_list = backend_data()
     if latest_list:
@@ -130,7 +124,8 @@ if st.session_state.run:
             st.session_state.last_id = unique_id
             st.session_state.data.append(latest)
 
-            def safe_float(v): #fungsi mengubah string menjadi float
+            #fungsi mengubah string menjadi float
+            def safe_float(v): 
                 try:
                     return float(v)
                 except Exception:
@@ -168,7 +163,6 @@ def posisi_floating_ball(path):
                          (1300, 2100), (1460, 2100), (2300, 1715), (2420, 1310), (2420, 960)]
         green_positions = [(240, 855), (320, 1160), (175, 1465), (980, 2300), (1140, 2300),
                            (1300, 2300), (1460, 2300), (2100, 1715), (2220, 1310), (2220, 960)]
-    elif path == "k":
         red_positions = []
         green_positions = []
     return red_positions, green_positions
@@ -177,46 +171,28 @@ def posisi_floating_ball(path):
 # Plot koordinat lintasan
 def koordinat_kartesius(path):
     fig, ax = plt.subplots(figsize=(13, 13))
+    ax.set_xlim(0, 2600)
+    ax.set_ylim(0, 2600)
+    ax.set_xticks(range(0, 2600, 200))
+    ax.set_yticks(range(0, 2600, 200))
+    ax.grid(True, linestyle='--', alpha=0.4)
+    ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
 
     if path == "Lintasan A ⚓":
-        ax.set_xlim(0, 2600)
-        ax.set_ylim(0, 2600)
-        ax.set_xticks(range(0, 2600, 200))
-        ax.set_yticks(range(0, 2600, 200))
-        ax.grid(True, linestyle='--', alpha=0.4)
-        ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
-
         start_x, start_y = 2185, 150     #menetukan titik awal posisi x,y
         red_positions, green_positions = posisi_floating_ball("A")
+        check_points = [(1800, 900), (1300, 1600), (500, 2000)] # posisi check point lintasan A
         ax.add_patch(plt.Rectangle((2100, 65), 170, 100, color='red', fill=True))
         ax.add_patch(plt.Rectangle((520, 300), 100, 50, color='blue', fill=True))
         ax.add_patch(plt.Rectangle((300, 620), 100, 50, color='green', fill=True))
 
     elif path == "Lintasan B ⚓":
-        ax.set_xlim(0, 2600)
-        ax.set_ylim(0, 2600)
-        ax.set_xticks(range(0, 2600, 200))
-        ax.set_yticks(range(0, 2600, 200))
-        ax.grid(True, linestyle='--', alpha=0.4)
-        ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
-
         start_x, start_y = 335, 150     #menetukan titik awal posisi x,y
         red_positions, green_positions = posisi_floating_ball("B")
+        check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
         ax.add_patch(plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True))
         ax.add_patch(plt.Rectangle((2100, 620), 100, 50, color='green', fill=True))
-
-    elif path == "kolsu":
-        ax.set_xlim(0, 1000)
-        ax.set_ylim(0, 1000)
-        ax.set_xticks(range(0, 1000, 100))
-        ax.set_yticks(range(0, 1000, 100))
-        ax.grid(True, linestyle='--', alpha=0.4)
-        ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
-
-        start_x, start_y = 500, 50 
-        red_positions, green_positions = posisi_floating_ball("k")
-
 
     # Tambahkan bola merah dan hijau
     for pos in red_positions:
@@ -284,8 +260,6 @@ with part2:
     
     if len(st.session_state.data) > 0:
         df = pd.DataFrame(list(st.session_state.data))
-
-        # Pilih hanya kolom dari 'Day' sampai 'Longitude'
         cols = [
             'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Latitude', 'Longitude'
         ]
@@ -321,7 +295,7 @@ with part2:
     ]
 
     # Pilih lintasan aktif dari session_state
-    #lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
+    # lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
     checkpoints = checkpoints_A if path == "Lintasan A ⚓" else checkpoints_B
 
     # --- LOGIKA PENINGKATAN NILAI ---
