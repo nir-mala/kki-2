@@ -126,8 +126,7 @@ if st.session_state.run:
             # === CEK RESET CODE 0125 ===
             reset_code = str(latest.get("code", "")).strip()
             if reset_code == "0125":
-                st.warning("Kode reset 0125 diterima! Mengembalikan ke kondisi awal...")
-
+                
                 # Reset semua data ke kondisi clean
                 st.session_state.data.clear()
                 st.session_state.trajectory_x.clear()
@@ -142,8 +141,6 @@ if st.session_state.run:
                 # Pastikan program tetap lanjut berjalan
                 st.session_state.run = True
                 st.session_state.current_path = path
-
-                st.success("Sistem berhasil di-reset dan berjalan kembali.")
                 st.rerun()
             
             st.session_state.last_id = unique_id
