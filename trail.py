@@ -122,6 +122,30 @@ if st.session_state.run:
         latest = latest_list[0]
         unique_id = latest.get("objectId") or latest.get("createdAt")
         if unique_id and unique_id != st.session_state.last_id:
+
+            # === CEK RESET CODE 0125 ===
+            reset_code = str(latest.get("code", "")).strip()
+            if reset_code == "0125":
+                st.warning("Kode reset 0125 diterima! Mengembalikan ke kondisi awal...")
+
+                # Reset semua data ke kondisi clean
+                st.session_state.data.clear()
+                st.session_state.trajectory_x.clear()
+                st.session_state.trajectory_y.clear()
+                st.session_state.akusisi_nilai = 0
+                st.session_state.last_checkpoint = 0
+                st.session_state.last_id = None
+                st.session_state.checkpoint_active = False
+                if "visited_checkpoints" in st.session_state:
+                    st.session_state.visited_checkpoints.clear()
+
+                # Pastikan program tetap lanjut berjalan
+                st.session_state.run = True
+                st.session_state.current_path = path
+
+                st.success("Sistem berhasil di-reset dan berjalan kembali.")
+                st.rerun()
+            
             st.session_state.last_id = unique_id
             st.session_state.data.append(latest)
 
