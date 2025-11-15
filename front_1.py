@@ -201,7 +201,7 @@ def koordinat_kartesius(path):
         ax.plot(
             [start_x] + st.session_state.trajectory_x,
             [start_y] + st.session_state.trajectory_y,
-            color='black', linestyle='--', marker='^', markersize=2
+            color='black', linestyle='--', marker='^', markersize=5
         )
         ax.scatter(st.session_state.trajectory_x[-1],
                    st.session_state.trajectory_y[-1],
