@@ -355,7 +355,7 @@ with part2:
 with part3:
         # SURFACE IMAGE
     st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
-    surface_path = './images/sbox1.jpg'
+    #surface_path = './images/sbox1.jpg'
     if os.path.exists(surface_path):
         st.image(surface_path)
     else:
@@ -363,7 +363,7 @@ with part3:
 
     # UNDERWATER IMAGE
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
-    underwater_path = './images/ubox1.jpg'
+    #underwater_path = './images/ubox1.jpg'
     if os.path.exists(underwater_path):
         st.image(underwater_path)
     else:
