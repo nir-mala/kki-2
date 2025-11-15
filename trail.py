@@ -111,8 +111,6 @@ if path == "Lintasan A ⚓":
 else:
     st.markdown('<div class="judul-text">LINTASAN B</div>', unsafe_allow_html=True)
 
-
-
 # Ambil data backend 
 if st.session_state.run:
     st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
@@ -126,7 +124,8 @@ if st.session_state.run:
             # === CEK RESET CODE 0125 ===
             reset_code = str(latest.get("code", "")).strip()
             if reset_code == "0125":
-                
+                st.warning("Kode reset 0125 diterima! Mengembalikan ke kondisi awal...")
+
                 # Reset semua data ke kondisi clean
                 st.session_state.data.clear()
                 st.session_state.trajectory_x.clear()
@@ -141,6 +140,8 @@ if st.session_state.run:
                 # Pastikan program tetap lanjut berjalan
                 st.session_state.run = True
                 st.session_state.current_path = path
+
+                st.success("Sistem berhasil di-reset dan berjalan kembali.")
                 st.rerun()
             
             st.session_state.last_id = unique_id
@@ -155,7 +156,7 @@ if st.session_state.run:
             #mendefinikan data x y terbaru/ pergeseran yang berasal dari sensor
             x = safe_float(latest.get("x"))
             y = safe_float(latest.get("y"))
-    
+
             #akan lanjut kesini jika data x y diterima, kalau salah satu tidak ada maka tidak berjalan
             if x is not None and y is not None:
                 # benambhan posisi awal dengan penggeserannya
@@ -176,9 +177,9 @@ if st.session_state.run:
 def posisi_floating_ball(path):
     if path == "A":
         green_positions = [(330, 960), (330, 1310), (450, 1715), (1040, 2250), (1200, 2250),
-                           (1360, 2250), (1520, 2250), (2325, 1465), (2180, 1160), (2260, 855)]
+                         (1360, 2250), (1520, 2250), (2325, 1465), (2180, 1160), (2260, 855)]
         red_positions = [(180, 960), (180, 1310), (300, 1715), (1040, 2100), (1200, 2100),
-                         (1360, 2100), (1520, 2100), (2175, 1465), (2030, 1160), (2110, 855)]
+                           (1360, 2100), (1520, 2100), (2175, 1465), (2030, 1160), (2110, 855)]
     elif path == "B":
         red_positions = [(390, 855), (470, 1160), (325, 1465), (980, 2170), (1140, 2170),
                          (1300, 2170), (1460, 2170), (2360, 1715), (2480, 1310), (2480, 960)]
@@ -210,8 +211,8 @@ def koordinat_kartesius(path):
         red_positions, green_positions = posisi_floating_ball("B")
         check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
-        ax.add_patch(plt.Rectangle((1880, 200), 100, 50, color='blue', fill=True))
-        ax.add_patch(plt.Rectangle((2100, 520), 100, 50, color='green', fill=True))
+        ax.add_patch(plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True))
+        ax.add_patch(plt.Rectangle((2100, 620), 100, 50, color='green', fill=True))
 
     # Tambahkan bola merah dan hijau
     for pos in red_positions:
@@ -224,7 +225,7 @@ def koordinat_kartesius(path):
         ax.plot(
             [start_x] + st.session_state.trajectory_x,
             [start_y] + st.session_state.trajectory_y,
-            color='black', linestyle='--', marker='o', markersize=2
+            color='black', linestyle='--', marker='^', markersize=5
         )
         ax.scatter(st.session_state.trajectory_x[-1],
                    st.session_state.trajectory_y[-1],
@@ -264,7 +265,7 @@ with part1:
         day_ph.metric("Day", last.get("Day", last.get("createdAt", "—")))
         date_ph.metric("Date", last.get("Date", last.get("createdAt", "—")))
         time_ph.metric("Time", last.get("Time", last.get("createdAt", "—")))
-        coord_ph.metric("Coordinate", f"S{last.get('Lattitude', '—')} E{last.get('Longitude', '—')}")
+        coord_ph.metric("Coordinate", f"S{last.get('Latitude', '—')} E{last.get('Longitude', '—')}")
         pos_ph.metric("Position [x,y]", f"{last.get('x', '—')}, {last.get('y', '—')}")
 
     st.markdown('<div class="judul-text">TRAJECTORY MAP</div>', unsafe_allow_html=True)
@@ -280,7 +281,7 @@ with part2:
 
         # Pilih hanya kolom dari 'Day' sampai 'Longitude'
         cols = [
-            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Lattitude', 'Longitude'
+            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Latitude', 'Longitude'
         ]
 
         # Tampilkan hanya kolom yang tersedia di df
@@ -295,28 +296,29 @@ with part2:
     st.markdown('<div class="judul-text">CHECKPOINT</div>', unsafe_allow_html=True)
 
     checkpoints_A = [
-        (2100, 2200, 840, 940),       # A1
-        (2030, 2180, 1100, 1300),     # A2
+        (2110, 2260, 840, 870),       # A1
+        (2030, 2180, 1145, 1175),     # A2
         (2175, 2325, 1400, 1600),     # A3
     ]
 
     checkpoints_B = [
-        (240, 430, 800, 1000),        # B1
+        (240, 430, 800, 1000),         # B1
         (320, 470, 1145, 1175),       # B2
         (160, 400, 1400, 1500),       # B3
-        (900, 1100, 2000, 2400),      # B4
-        (1100, 1300, 2000, 2400),     # B5
-        (1300, 1500, 2000, 2400),     # B6
-        (1500, 1700, 2000, 2400),     # B7
-        (2000, 2400, 1500, 2000),     # B8
-        (2200, 2450, 1000, 1400),     # B9
-        (2200, 2450, 600, 1000),     # B10
+        (900, 1100, 2000, 2400),       # B4
+        (1100, 1300, 2000, 2400),       # B5
+        (1300, 1500, 2000, 2400),       # B6
+        (1500, 1700, 2000, 2400),       # B7
+        (2000, 2400, 1600, 1800),       # B8
+        (2200, 2450, 1200, 1400),       # B9
+        (2200, 2450, 1600, 1800),       # B10
     ]
 
-    # Pilih lintasan aktif
+    # Pilih lintasan aktif dari session_state
+    #lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
     checkpoints = checkpoints_A if path == "Lintasan A ⚓" else checkpoints_B
 
-    # --- LOGIKA PENILAIAN BARU ---
+    # --- LOGIKA PENINGKATAN NILAI ---
     if len(st.session_state.data) > 0:
         last = st.session_state.data[-1]
         try:
@@ -334,28 +336,30 @@ with part2:
                     checkpoint_now = i
                     break
 
-            # Jika kapal berada di checkpoint tertentu
-            if checkpoint_now != 0:
-                # Jika checkpoint baru lebih besar dari nilai sebelumnya
-                if checkpoint_now > st.session_state.akusisi_nilai:
-                    st.session_state.akusisi_nilai = checkpoint_now
+            # Jika kapal MASUK ke checkpoint baru
+            if checkpoint_now != 0 and not st.session_state.checkpoint_active:
+                if checkpoint_now != st.session_state.last_checkpoint:
+                    st.session_state.akusisi_nilai += 1
+                    st.session_state.last_checkpoint = checkpoint_now
+                    st.session_state.checkpoint_active = True
 
-            # Reset status keluar dari checkpoint (opsional, jika ingin deteksi masuk-keluar)
+            # Jika kapal KELUAR dari semua checkpoint → reset flag
             elif checkpoint_now == 0:
                 st.session_state.checkpoint_active = False
+                st.session_state.last_checkpoint = 0
 
         except Exception:
             pass
-
-    # --- TAMPILKAN HASIL ---
+    
+    # Tampilkan hasil
     st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
-    #st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
+
 
 # Part 3: IMAGES
 with part3:
         # SURFACE IMAGE
     st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
-    #surface_path = './images/sbox1.jpg'
+    surface_path = './images/sbox1.jpg'
     if os.path.exists(surface_path):
         st.image(surface_path)
     else:
@@ -363,7 +367,7 @@ with part3:
 
     # UNDERWATER IMAGE
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
-    #underwater_path = './images/ubox1.jpg'
+    underwater_path = './images/ubox.jpg'
     if os.path.exists(underwater_path):
         st.image(underwater_path)
     else:
