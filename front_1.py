@@ -343,7 +343,7 @@ with part3:
 
     # UNDERWATER IMAGE
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
-    underwater_path = './images/ubox.jpg'
+    underwater_path = './images/ubox1.jpg'
     if os.path.exists(underwater_path):
         st.image(underwater_path)
     else:
