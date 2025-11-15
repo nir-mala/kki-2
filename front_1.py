@@ -14,10 +14,10 @@ with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Back4App endpoint
-BASE_URL = "https://parseapi.back4app.com/classes/kki_trial"
+BASE_URL = "https://parseapi.back4app.com/classes/Trial"
 HEADERS = {
-    "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
-    "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
+    "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
+    "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
 }
 
 #Endpoint Backend
@@ -27,7 +27,7 @@ def backend_data():
         if resp.status_code == 200:
             return resp.json().get("results", [])
         else:
-            st.warning(f"Gagal fetch data: {resp.status_code}")
+            st.warning(f"⚠️ Gagal fetch data: {resp.status_code}")
             return []
     except requests.exceptions.RequestException as e:
         st.error(f"backend tidak terhubung {e}")
@@ -89,11 +89,10 @@ if st.session_state.current_path != path:
     st.session_state.last_checkpoint = 0
     st.session_state.last_id = None
 
-if path == "Lintasan A ⚓":
-    st.session_state.start_x, st.session_state.start_y = 2185, 150
-
-elif path == "Lintasan B ⚓":
-    st.session_state.start_x, st.session_state.start_y = 335, 150
+    if path == "Lintasan A ⚓":
+        st.session_state.start_x, st.session_state.start_y = 2185, 150
+    else:
+        st.session_state.start_x, st.session_state.start_y = 335, 150
 
 # Header
 col1, col2, col3, col4 = st.columns([0.6, 4, 4, 1])
@@ -109,12 +108,12 @@ with col4:
 # Judul Lintasan
 if path == "Lintasan A ⚓":
     st.markdown('<div class="judul-text">LINTASAN A</div>', unsafe_allow_html=True)
-elif path == "Lintasan B ⚓":
+else:
     st.markdown('<div class="judul-text">LINTASAN B</div>', unsafe_allow_html=True)
 
 # Ambil data backend 
 if st.session_state.run:
-    st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (2 detik)
+    st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
 
     latest_list = backend_data()
     if latest_list:
@@ -124,8 +123,7 @@ if st.session_state.run:
             st.session_state.last_id = unique_id
             st.session_state.data.append(latest)
 
-            #fungsi mengubah string menjadi float
-            def safe_float(v): 
+            def safe_float(v): #fungsi mengubah string menjadi float
                 try:
                     return float(v)
                 except Exception:
@@ -137,7 +135,7 @@ if st.session_state.run:
 
             #akan lanjut kesini jika data x y diterima, kalau salah satu tidak ada maka tidak berjalan
             if x is not None and y is not None:
-                # Penambhan posisi awal dengan penggeserannya
+                # benambhan posisi awal dengan penggeserannya
                 x_abs = st.session_state.start_x + x
                 y_abs = st.session_state.start_y + y
 
@@ -163,8 +161,6 @@ def posisi_floating_ball(path):
                          (1300, 2100), (1460, 2100), (2300, 1715), (2420, 1310), (2420, 960)]
         green_positions = [(240, 855), (320, 1160), (175, 1465), (980, 2300), (1140, 2300),
                            (1300, 2300), (1460, 2300), (2100, 1715), (2220, 1310), (2220, 960)]
-        red_positions = []
-        green_positions = []
     return red_positions, green_positions
 
 
@@ -217,8 +213,6 @@ def koordinat_kartesius(path):
 
     return fig
 
-
-
 # Layout utama---
 part1, part2, part3 = st.columns([2.1, 1, 0.9])
 
@@ -260,6 +254,8 @@ with part2:
     
     if len(st.session_state.data) > 0:
         df = pd.DataFrame(list(st.session_state.data))
+
+        # Pilih hanya kolom dari 'Day' sampai 'Longitude'
         cols = [
             'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Latitude', 'Longitude'
         ]
@@ -295,7 +291,7 @@ with part2:
     ]
 
     # Pilih lintasan aktif dari session_state
-    # lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
+    #lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
     checkpoints = checkpoints_A if path == "Lintasan A ⚓" else checkpoints_B
 
     # --- LOGIKA PENINGKATAN NILAI ---
@@ -347,7 +343,7 @@ with part3:
 
     # UNDERWATER IMAGE
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
-    underwater_path = './images/ubox1.jpg'
+    underwater_path = './images/ubox.jpg'
     if os.path.exists(underwater_path):
         st.image(underwater_path)
     else:
