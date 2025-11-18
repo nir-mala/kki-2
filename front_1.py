@@ -6,8 +6,7 @@ from streamlit_autorefresh import st_autorefresh
 from collections import deque
 import os
 
-#
-st.set_page_config(page_title="monitoring kki 2025", page_icon="🌍", layout="wide")
+st.set_page_config(page_title="monitoring Nathara 2025", page_icon="🌍", layout="wide")
 
 # CSS
 with open("new.css") as f:
@@ -19,6 +18,11 @@ HEADERS = {
     "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
     "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
 }
+# BASE_URL = "https://parseapi.back4app.com/classes/Trial"
+# HEADERS = {
+#     "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
+#     "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
+# }
 
 #Endpoint Backend
 def backend_data():
@@ -32,8 +36,7 @@ def backend_data():
     except requests.exceptions.RequestException as e:
         st.error(f"backend tidak terhubung {e}")
         return []
-
-
+        
 # -------------------------
 # session state init
 # -------------------------
@@ -120,6 +123,26 @@ if st.session_state.run:
         latest = latest_list[0]
         unique_id = latest.get("objectId") or latest.get("createdAt")
         if unique_id and unique_id != st.session_state.last_id:
+            # === CEK RESET CODE 0125 ===
+            reset_code = str(latest.get("code", "")).strip()
+            if reset_code == "0125":
+                
+                # Reset semua data ke kondisi clean
+                st.session_state.data.clear()
+                st.session_state.trajectory_x.clear()
+                st.session_state.trajectory_y.clear()
+                st.session_state.akusisi_nilai = 0
+                st.session_state.last_checkpoint = 0
+                st.session_state.last_id = None
+                st.session_state.checkpoint_active = False
+                if "visited_checkpoints" in st.session_state:
+                    st.session_state.visited_checkpoints.clear()
+
+                # Pastikan program tetap lanjut berjalan
+                st.session_state.run = True
+                st.session_state.current_path = path
+                st.rerun()
+            
             st.session_state.last_id = unique_id
             st.session_state.data.append(latest)
 
@@ -132,7 +155,7 @@ if st.session_state.run:
             #mendefinikan data x y terbaru/ pergeseran yang berasal dari sensor
             x = safe_float(latest.get("x"))
             y = safe_float(latest.get("y"))
-
+    
             #akan lanjut kesini jika data x y diterima, kalau salah satu tidak ada maka tidak berjalan
             if x is not None and y is not None:
                 # benambhan posisi awal dengan penggeserannya
@@ -187,8 +210,8 @@ def koordinat_kartesius(path):
         red_positions, green_positions = posisi_floating_ball("B")
         check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
-        ax.add_patch(plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True))
-        ax.add_patch(plt.Rectangle((2100, 620), 100, 50, color='green', fill=True))
+        ax.add_patch(plt.Rectangle((1880, 200), 100, 50, color='blue', fill=True))
+        ax.add_patch(plt.Rectangle((2100, 520), 100, 50, color='green', fill=True))
 
     # Tambahkan bola merah dan hijau
     for pos in red_positions:
@@ -201,7 +224,7 @@ def koordinat_kartesius(path):
         ax.plot(
             [start_x] + st.session_state.trajectory_x,
             [start_y] + st.session_state.trajectory_y,
-            color='black', linestyle='--', marker='^', markersize=5
+            color='black', linestyle='--', marker='o', markersize=2
         )
         ax.scatter(st.session_state.trajectory_x[-1],
                    st.session_state.trajectory_y[-1],
@@ -241,7 +264,7 @@ with part1:
         day_ph.metric("Day", last.get("Day", last.get("createdAt", "—")))
         date_ph.metric("Date", last.get("Date", last.get("createdAt", "—")))
         time_ph.metric("Time", last.get("Time", last.get("createdAt", "—")))
-        coord_ph.metric("Coordinate", f"S{last.get('Latitude', '—')} E{last.get('Longitude', '—')}")
+        coord_ph.metric("Coordinate", f"S{last.get('Lattitude', '—')} E{last.get('Longitude', '—')}")
         pos_ph.metric("Position [x,y]", f"{last.get('x', '—')}, {last.get('y', '—')}")
 
     st.markdown('<div class="judul-text">TRAJECTORY MAP</div>', unsafe_allow_html=True)
@@ -257,7 +280,7 @@ with part2:
 
         # Pilih hanya kolom dari 'Day' sampai 'Longitude'
         cols = [
-            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Latitude', 'Longitude'
+            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Lattitude', 'Longitude'
         ]
 
         # Tampilkan hanya kolom yang tersedia di df
@@ -272,29 +295,28 @@ with part2:
     st.markdown('<div class="judul-text">CHECKPOINT</div>', unsafe_allow_html=True)
 
     checkpoints_A = [
-        (2110, 2260, 840, 870),       # A1
-        (2030, 2180, 1145, 1175),     # A2
+        (2100, 2200, 840, 940),       # A1
+        (2030, 2180, 1100, 1300),     # A2
         (2175, 2325, 1400, 1600),     # A3
     ]
 
     checkpoints_B = [
-        (240, 430, 800, 1000),         # B1
+        (240, 430, 800, 1000),        # B1
         (320, 470, 1145, 1175),       # B2
         (160, 400, 1400, 1500),       # B3
-        (900, 1100, 2000, 2400),       # B4
-        (1100, 1300, 2000, 2400),       # B5
-        (1300, 1500, 2000, 2400),       # B6
-        (1500, 1700, 2000, 2400),       # B7
-        (2000, 2400, 1600, 1800),       # B8
-        (2200, 2450, 1200, 1400),       # B9
-        (2200, 2450, 1600, 1800),       # B10
+        (900, 1100, 2000, 2400),      # B4
+        (1100, 1300, 2000, 2400),     # B5
+        (1300, 1500, 2000, 2400),     # B6
+        (1500, 1700, 2000, 2400),     # B7
+        (2000, 2400, 1500, 2000),     # B8
+        (2200, 2450, 1000, 1400),     # B9
+        (2200, 2450, 600, 1000),     # B10
     ]
 
-    # Pilih lintasan aktif dari session_state
-    #lintasan_aktif = st.session_state.get("selected_lintasan", "Lintasan A ⚓")
+    # Pilih lintasan aktif
     checkpoints = checkpoints_A if path == "Lintasan A ⚓" else checkpoints_B
 
-    # --- LOGIKA PENINGKATAN NILAI ---
+    # --- LOGIKA PENILAIAN BARU ---
     if len(st.session_state.data) > 0:
         last = st.session_state.data[-1]
         try:
@@ -312,24 +334,22 @@ with part2:
                     checkpoint_now = i
                     break
 
-            # Jika kapal MASUK ke checkpoint baru
-            if checkpoint_now != 0 and not st.session_state.checkpoint_active:
-                if checkpoint_now != st.session_state.last_checkpoint:
-                    st.session_state.akusisi_nilai += 1
-                    st.session_state.last_checkpoint = checkpoint_now
-                    st.session_state.checkpoint_active = True
+            # Jika kapal berada di checkpoint tertentu
+            if checkpoint_now != 0:
+                # Jika checkpoint baru lebih besar dari nilai sebelumnya
+                if checkpoint_now > st.session_state.akusisi_nilai:
+                    st.session_state.akusisi_nilai = checkpoint_now
 
-            # Jika kapal KELUAR dari semua checkpoint → reset flag
+            # Reset status keluar dari checkpoint (opsional, jika ingin deteksi masuk-keluar)
             elif checkpoint_now == 0:
                 st.session_state.checkpoint_active = False
-                st.session_state.last_checkpoint = 0
 
         except Exception:
             pass
-    
-    # Tampilkan hasil
-    st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
 
+    # --- TAMPILKAN HASIL ---
+    st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
+    #st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
 
 # Part 3: IMAGES
 with part3:
