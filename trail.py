@@ -360,7 +360,7 @@ with part3:
     if os.path.exists(surface_path):
         st.image(surface_path)
     else:
-        st.image('./images/surface.jpg')  # gambar cadangan
+        st.image('./images/surface.jpg')  # gambar cadangann
 
     # UNDERWATER IMAGE
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
