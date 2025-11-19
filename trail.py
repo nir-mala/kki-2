@@ -127,7 +127,6 @@ if st.session_state.run:
             # === CEK RESET CODE 0125 ===
             reset_code = str(latest.get("code", "")).strip()
             if reset_code == "0125":
-                
                 # Reset semua data ke kondisi clean
                 st.session_state.data.clear()
                 st.session_state.trajectory_x.clear()
