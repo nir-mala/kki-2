@@ -211,8 +211,8 @@ def koordinat_kartesius(path):
         red_positions, green_positions = posisi_floating_ball("B")
         check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
-        ax.add_patch(plt.Rectangle((1880, 200), 100, 50, color='blue', fill=True))
-        ax.add_patch(plt.Rectangle((2100, 520), 100, 50, color='green', fill=True))
+        ax.add_patch(plt.Rectangle((1880, 300), 100, 50, color='blue', fill=True))
+        ax.add_patch(plt.Rectangle((2100, 620), 100, 50, color='green', fill=True))
 
     # Tambahkan bola merah dan hijau
     for pos in red_positions:
