@@ -12,17 +12,18 @@ st.set_page_config(page_title="monitoring Nathara 2025", page_icon="🌍", layou
 with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Back4App endpoint
-BASE_URL = "https://parseapi.back4app.com/classes/kki_trial"
-HEADERS = {
-    "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
-    "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
-}
-# BASE_URL = "https://parseapi.back4app.com/classes/Trial"
+# # Back4App endpoint
+# BASE_URL = "https://parseapi.back4app.com/classes/kki_trial"
 # HEADERS = {
-#     "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
-#     "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
+#     "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
+#     "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
 # }
+
+BASE_URL = "https://parseapi.back4app.com/classes/Trial"
+HEADERS = {
+    "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
+    "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
+}
 
 #Endpoint Backend
 def backend_data():
