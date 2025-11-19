@@ -353,19 +353,19 @@ with part2:
     #st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
 
 # Part 3: IMAGES
-with part3:
-        # SURFACE IMAGE
-    st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
-    surface_path = './images/sbox1.jpg'
-    if os.path.exists(surface_path):
-        st.image(surface_path)
-    else:
-        st.image('./images/surface.jpg')  # gambar cadangann
+# with part3:
+#         # SURFACE IMAGE
+#     st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
+#     surface_path = './images/sbox1.jpg'
+#     if os.path.exists(surface_path):
+#         st.image(surface_path)
+#     else:
+#         st.image('./images/surface.jpg')  # gambar cadangann
 
-    # UNDERWATER IMAGE
-    st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
-    underwater_path = './images/ubox1.jpg'
-    if os.path.exists(underwater_path):
-        st.image(underwater_path)
-    else:
-        st.image('./images/underwater.jpg')  # gambar cadangan
+#     # UNDERWATER IMAGE
+#     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
+#     underwater_path = './images/ubox1.jpg'
+#     if os.path.exists(underwater_path):
+#         st.image(underwater_path)
+#     else:
+#         st.image('./images/underwater.jpg')  # gambar cadangan
