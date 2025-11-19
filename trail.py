@@ -356,7 +356,7 @@ with part2:
 with part3:
         # SURFACE IMAGE
     st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
-    surface_path = './images/sbox1.jpg'
+    #surface_path = './images/sbox1.jpg'
     if os.path.exists(surface_path):
         st.image(surface_path)
     else:
