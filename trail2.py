@@ -13,16 +13,16 @@ with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Back4App endpoint
-BASE_URL = "https://parseapi.back4app.com/classes/trial-2"
-HEADERS = {
-    "X-Parse-Application-Id": 'gI6kf3L8DPIK5dhcxTCIQ5m8Huj6uVfIghe0ygm2',
-    "X-Parse-REST-API-Key": 'K3SV5NcG3PezqEUr03NfkytCYQvUzEwqr83pLgun',
-}
+URL = "https://parseapi.back4app.com/classes/ujikelayakan"
+BACK4APP_HEADERS = {
+    'X-Parse-Application-Id': 'KKRKxZ4aYnuM7e8h7XhQZPUKDwZqfL9D10Z1G5J2',
+    'X-Parse-REST-API-Key': 'XGPv6wGeJ92m7J9giWYxt79bmQIQ9KvxjsFGY2ji',
+    'Content-Type': 'application/json',}
 
 #Endpoint Backend
 def backend_data():
     try:
-        resp = requests.get(BASE_URL, headers=HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
+        resp = requests.get(URL, headers=BACK4APP_HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
         if resp.status_code == 200:
             return resp.json().get("results", [])
         else:
