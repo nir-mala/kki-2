@@ -248,7 +248,7 @@ def koordinat_kartesius(path):
     for pos in green_positions:
         ax.add_patch(plt.Circle(pos, 15, color='green'))
 
-    # Trajektori
+    # Trajektori kapal 1
     if len(st.session_state.trajectory_x1) > 0:
         ax.plot(
             [start_x1] + st.session_state.trajectory_x1,
@@ -258,13 +258,11 @@ def koordinat_kartesius(path):
         ax.scatter(st.session_state.trajectory_x1[-1],
                    st.session_state.trajectory_y1[-1],
                    color='yellow', s=200, edgecolors='black', label='Posisi Kapal')
-        ax.legend()
     else:
         ax.scatter(start_x1, start_y1, color='yellow', s=200, edgecolors='black', label='Titik Awal')
-        ax.legend()
 
-     # Trajektori
-    if len(st.session_state.trajectory_c) > 0:
+     # Trajektori kapal 2
+    if len(st.session_state.trajectory_x2) > 0:
         ax.plot(
             [start_x2] + st.session_state.trajectory_x2,
             [start_y2] + st.session_state.trajectory_y2,
@@ -273,11 +271,11 @@ def koordinat_kartesius(path):
         ax.scatter(st.session_state.trajectory_x2[-1],
                    st.session_state.trajectory_y2[-1],
                    color='red', s=200, edgecolors='black', label='Posisi Kapal')
-        ax.legend()
     else:
         ax.scatter(start_x1, start_y1, color='yellow', s=200, edgecolors='black', label='Titik Awal_1')
         ax.scatter(start_x2, start_y2, color='red', s=200, edgecolors='black', label='Titik Awal_2')
-        ax.legend()
+        
+    ax.legend()
 
     return fig
 
