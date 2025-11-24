@@ -44,14 +44,14 @@ if "run" not in st.session_state:
     st.session_state.run = False
 if "data" not in st.session_state:
     st.session_state.data = deque(maxlen=200)
-if "trajectory_x" not in st.session_state:
-    st.session_state.trajectory_x = []
-if "trajectory_y" not in st.session_state:
-    st.session_state.trajectory_y = []
-if "trajectory_c" not in st.session_state:
-    st.session_state.trajectory_c = []
-if "trajectory_s" not in st.session_state:
-    st.session_state.trajectory_s = []
+if "trajectory_x1" not in st.session_state:
+    st.session_state.trajectory_x1 = []
+if "trajectory_y1" not in st.session_state:
+    st.session_state.trajectory_y1 = []
+if "trajectory_x2" not in st.session_state:
+    st.session_state.trajectory_x2 = []
+if "trajectory_y2" not in st.session_state:
+    st.session_state.trajectory_y2 = []
 if "last_id" not in st.session_state:
     st.session_state.last_id = None
 if "current_path" not in st.session_state:
@@ -75,10 +75,10 @@ stop_monitoring_button = st.sidebar.button("STOP BUTTON", key="stop_monitoring_b
 if start_monitoring_button:
     st.session_state.run = True
     st.session_state.data.clear()
-    st.session_state.trajectory_x.clear()
-    st.session_state.trajectory_y.clear()
-    st.session_state.trajectory_c.clear()
-    st.session_state.trajectory_s.clear()
+    st.session_state.trajectory_x1.clear()
+    st.session_state.trajectory_y1.clear()
+    st.session_state.trajectory_x2.clear()
+    st.session_state.trajectory_y2.clear()
     st.session_state.akusisi_nilai = 0
     st.session_state.last_checkpoint = 0
     st.session_state.last_id = None
@@ -92,21 +92,21 @@ if stop_monitoring_button:
 if st.session_state.current_path != path:
     st.session_state.current_path = path
     st.session_state.data.clear()
-    st.session_state.trajectory_x.clear()
-    st.session_state.trajectory_y.clear()
-    st.session_state.trajectory_c.clear()
-    st.session_state.trajectory_s.clear()
+    st.session_state.trajectory_x1.clear()
+    st.session_state.trajectory_y1.clear()
+    st.session_state.trajectory_x2.clear()
+    st.session_state.trajectory_y2.clear()
     st.session_state.akusisi_nilai = 0
     st.session_state.last_checkpoint = 0
     st.session_state.last_id = None
 
     if path == "Lintasan A ⚓":
-        st.session_state.start_x, st.session_state.start_y = 2185, 150
-        st.session_state.start_c, st.session_state.start_s = 2185, 150
+        st.session_state.start_x1, st.session_state.start_y1 = 2185, 150
+        st.session_state.start_x2, st.session_state.start_y2 = 2185, 150
 
     else:
-        st.session_state.start_x, st.session_state.start_y = 335, 150
-        st.session_state.start_c, st.session_state.start_s = 335, 150
+        st.session_state.start_x1, st.session_state.start_y1 = 335, 150
+        st.session_state.start_x2, st.session_state.start_y2 = 335, 150
 
 # Header
 col1, col2, col3, col4 = st.columns([0.6, 4, 4, 1])
@@ -140,10 +140,10 @@ if st.session_state.run:
                 
                 # Reset semua data ke kondisi clean
                 st.session_state.data.clear()
-                st.session_state.trajectory_x.clear()
-                st.session_state.trajectory_y.clear()
-                st.session_state.trajectory_c.clear()
-                st.session_state.trajectory_s.clear()
+                st.session_state.trajectory_x1.clear()
+                st.session_state.trajectory_y1.clear()
+                st.session_state.trajectory_x2.clear()
+                st.session_state.trajectory_y2.clear()
                 st.session_state.akusisi_nilai = 0
                 st.session_state.last_checkpoint = 0
                 st.session_state.last_id = None
@@ -166,41 +166,41 @@ if st.session_state.run:
                     return None
 
             #mendefinikan data x y terbaru/ pergeseran yang berasal dari sensor
-            x = safe_float(latest.get("x"))
-            y = safe_float(latest.get("y"))
-            c = safe_float(latest.get("COG"))
-            s = safe_float(latest.get("SOG_Knot"))
+            x1 = safe_float(latest.get("x"))
+            y1 = safe_float(latest.get("y"))
+            x2 = safe_float(latest.get("COG"))
+            y2 = safe_float(latest.get("SOG_Knot"))
     
             #akan lanjut kesini jika data x y diterima, kalau salah satu tidak ada maka tidak berjalan
-            if x is not None and y is not None:
+            if x1 is not None and y1 is not None:
                 # benambhan posisi awal dengan penggeserannya
-                x_abs = st.session_state.start_x + x
-                y_abs = st.session_state.start_y + y
+                x1_abs = st.session_state.start_x1 + x1
+                y1_abs = st.session_state.start_y1 + y1
 
                 # Tambahkan hanya jika data berubah signifikan
                 if (
-                    len(st.session_state.trajectory_x) == 0
-                    or abs(x_abs - st.session_state.trajectory_x[-1]) > 1e-3
-                    or abs(y_abs - st.session_state.trajectory_y[-1]) > 1e-3
+                    len(st.session_state.trajectory_x1) == 0
+                    or abs(x1_abs - st.session_state.trajectory_x1[-1]) > 1e-3
+                    or abs(y1_abs - st.session_state.trajectory_y1[-1]) > 1e-3
                 ):  
                     #menyimpan x y ke trajectory
-                    st.session_state.trajectory_x.append(x_abs)
-                    st.session_state.trajectory_y.append(y_abs)
+                    st.session_state.trajectory_x1.append(x1_abs)
+                    st.session_state.trajectory_y1.append(y1_abs)
 
-            if x is not None and y is not None:
+            if x2 is not None and y2 is not None:
                 # benambhan posisi awal dengan penggeserannya
-                c_abs = st.session_state.start_c + c
-                s_abs = st.session_state.start_s + s
+                x2_abs = st.session_state.start_x2 + x2
+                y2_abs = st.session_state.start_y2 + y2
 
                 # Tambahkan hanya jika data berubah signifikan
                 if (
-                    len(st.session_state.trajectory_x) == 0
-                    or abs(c_abs - st.session_state.trajectory_c[-1]) > 1e-3
-                    or abs(s_abs - st.session_state.trajectory_y[-1]) > 1e-3
+                    len(st.session_state.trajectory_x2) == 0
+                    or abs(x2_abs - st.session_state.trajectory_x2[-1]) > 1e-3
+                    or abs(y2_abs - st.session_state.trajectory_y2[-1]) > 1e-3
                 ):  
                     #menyimpan x y ke trajectory
-                    st.session_state.trajectory_c.append(c_abs)
-                    st.session_state.trajectory_s.append(s_abs)
+                    st.session_state.trajectory_x2.append(x2_abs)
+                    st.session_state.trajectory_y2.append(y2_abs)
 # Bola lintasan
 def posisi_floating_ball(path):
     if path == "A":
@@ -227,16 +227,16 @@ def koordinat_kartesius(path):
     ax.set_title(f"Trajectory Map - {path}", fontsize=16, fontweight="bold")
 
     if path == "Lintasan A ⚓":
-        start_x, start_y = 2185, 150     #menetukan titik awal posisi x,y
-        start_c, start_s = 2185, 150     #menetukan titik awal posisi x,y
+        start_x1, start_y1 = 2185, 150     #menetukan titik awal posisi x,y
+        start_x2, start_y2 = 2185, 150     #menetukan titik awal posisi x,y
         red_positions, green_positions = posisi_floating_ball("A")
         ax.add_patch(plt.Rectangle((2100, 65), 170, 100, color='red', fill=True))
         ax.add_patch(plt.Rectangle((520, 300), 100, 50, color='blue', fill=True))
         ax.add_patch(plt.Rectangle((300, 620), 100, 50, color='green', fill=True))
 
     elif path == "Lintasan B ⚓":
-        start_x, start_y = 335, 150     #menetukan titik awal posisi x,y
-        start_c, start_s = 335, 150     #menetukan titik awal posisi x,y
+        start_x1, start_y1 = 335, 150     #menetukan titik awal posisi x,y
+        start_x2, start_y2 = 335, 150     #menetukan titik awal posisi x,y
         red_positions, green_positions = posisi_floating_ball("B")
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
         ax.add_patch(plt.Rectangle((1880, 200), 100, 50, color='blue', fill=True))
@@ -249,34 +249,34 @@ def koordinat_kartesius(path):
         ax.add_patch(plt.Circle(pos, 15, color='green'))
 
     # Trajektori
-    if len(st.session_state.trajectory_x) > 0:
+    if len(st.session_state.trajectory_x1) > 0:
         ax.plot(
-            [start_x] + st.session_state.trajectory_x,
-            [start_y] + st.session_state.trajectory_y,
+            [start_x1] + st.session_state.trajectory_x1,
+            [start_y]1 + st.session_state.trajectory_y1,
             color='black', linestyle='--', marker='o', markersize=2
         )
-        ax.scatter(st.session_state.trajectory_x[-1],
-                   st.session_state.trajectory_y[-1],
+        ax.scatter(st.session_state.trajectory_x1[-1],
+                   st.session_state.trajectory_y1[-1],
                    color='yellow', s=200, edgecolors='black', label='Posisi Kapal')
         ax.legend()
     else:
-        ax.scatter(start_x, start_y, color='yellow', s=200, edgecolors='black', label='Titik Awal')
+        ax.scatter(start_x1, start_y1, color='yellow', s=200, edgecolors='black', label='Titik Awal')
         ax.legend()
 
      # Trajektori
     if len(st.session_state.trajectory_c) > 0:
         ax.plot(
-            [start_c] + st.session_state.trajectory_c,
-            [start_s] + st.session_state.trajectory_s,
+            [start_x2] + st.session_state.trajectory_x2,
+            [start_y2] + st.session_state.trajectory_y2,
             color='blue', linestyle='--', marker='o', markersize=2
         )
-        ax.scatter(st.session_state.trajectory_c[-1],
-                   st.session_state.trajectory_s[-1],
+        ax.scatter(st.session_state.trajectory_x2[-1],
+                   st.session_state.trajectory_y2[-1],
                    color='red', s=200, edgecolors='black', label='Posisi Kapal')
         ax.legend()
     else:
-        ax.scatter(start_x, start_y, color='yellow', s=200, edgecolors='black', label='Titik Awal_1')
-        ax.scatter(start_c, start_s, color='red', s=200, edgecolors='black', label='Titik Awal_2')
+        ax.scatter(start_x1, start_y1, color='yellow', s=200, edgecolors='black', label='Titik Awal_1')
+        ax.scatter(start_x2, start_y2, color='red', s=200, edgecolors='black', label='Titik Awal_2')
         ax.legend()
 
     return fig
