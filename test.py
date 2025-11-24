@@ -252,7 +252,7 @@ def koordinat_kartesius(path):
     if len(st.session_state.trajectory_x1) > 0:
         ax.plot(
             [start_x1] + st.session_state.trajectory_x1,
-            [start_y1]1 + st.session_state.trajectory_y1,
+            [start_y1] + st.session_state.trajectory_y1,
             color='black', linestyle='--', marker='o', markersize=2
         )
         ax.scatter(st.session_state.trajectory_x1[-1],
