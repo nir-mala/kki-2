@@ -13,21 +13,16 @@ with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Back4App endpoint
-# BASE_URL = "https://parseapi.back4app.com/classes/kki_trial"
-# HEADERS = {
-#     "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
-#     "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
-# }
-BASE_URL = "https://parseapi.back4app.com/classes/Trial"
-HEADERS = {
-    "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
-    "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
-}
+URL = "https://parseapi.back4app.com/classes/ujikelayakan"
+BACK4APP_HEADERS = {
+    'X-Parse-Application-Id': 'KKRKxZ4aYnuM7e8h7XhQZPUKDwZqfL9D10Z1G5J2',
+    'X-Parse-REST-API-Key': 'XGPv6wGeJ92m7J9giWYxt79bmQIQ9KvxjsFGY2ji',
+    'Content-Type': 'application/json',}
 
 #Endpoint Backend
 def backend_data():
     try:
-        resp = requests.get(BASE_URL, headers=HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
+        resp = requests.get(URL, headers=BACK4APP_HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
         if resp.status_code == 200:
             return resp.json().get("results", [])
         else:
@@ -126,7 +121,6 @@ if st.session_state.run:
             # === CEK RESET CODE 0125 ===
             reset_code = str(latest.get("code", "")).strip()
             if reset_code == "0125":
-                
                 # Reset semua data ke kondisi clean
                 st.session_state.data.clear()
                 st.session_state.trajectory_x.clear()
@@ -186,7 +180,6 @@ def posisi_floating_ball(path):
                            (1300, 2250), (1460, 2250), (2050, 1715), (2170, 1310), (2170, 960)]
     return red_positions, green_positions
 
-
 # Plot koordinat lintasan
 def koordinat_kartesius(path):
     fig, ax = plt.subplots(figsize=(13, 13))
@@ -210,8 +203,8 @@ def koordinat_kartesius(path):
         red_positions, green_positions = posisi_floating_ball("B")
         check_points = [(700, 890), (1500, 1300), (2100, 2000)]  # posisi check point lintasan B
         ax.add_patch(plt.Rectangle((250, 65), 170, 100, color='green', fill=True))
-        ax.add_patch(plt.Rectangle((1880, 200), 100, 50, color='blue', fill=True))
-        ax.add_patch(plt.Rectangle((2100, 520), 100, 50, color='green', fill=True))
+        ax.add_patch(plt.Rectangle((1880, 250), 100, 50, color='blue', fill=True))
+        ax.add_patch(plt.Rectangle((2100, 570), 100, 50, color='green', fill=True))
 
     # Tambahkan bola merah dan hijau
     for pos in red_positions:
@@ -359,7 +352,7 @@ with part3:
     if os.path.exists(surface_path):
         st.image(surface_path)
     else:
-        st.image('./images/surface.jpg')  # gambar cadangan
+        st.image('./images/surface.jpg')  # gambar cadangann
 
     # UNDERWATER IMAGE
     st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
