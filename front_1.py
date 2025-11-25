@@ -342,7 +342,7 @@ with part2:
 
     # --- TAMPILKAN HASIL ---
     st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
-    #st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
+    st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
 
 # Part 3: IMAGES
 with part3:
