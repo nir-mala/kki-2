@@ -13,21 +13,15 @@ with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Back4App endpoint
-BASE_URL = "https://parseapi.back4app.com/classes/kki_trial"
-HEADERS = {
-    "X-Parse-Application-Id": 'BT1NAuBn8l65b2oaNxflQPlsFS1T9jXdIZSPkVE8',
-    "X-Parse-REST-API-Key": 'U88SP5kKJobcf3gvybYoeBa1tWABtTB9GyWpC37J',
-}
-# BASE_URL = "https://parseapi.back4app.com/classes/Trial"
-# HEADERS = {
-#     "X-Parse-Application-Id": '0Sso192eaYKycvvXtqrh4RYC9OCZV4SE1OUpNi8a',
-#     "X-Parse-REST-API-Key": '3p3PJx6i57cIBZqpxchpbZVjNbkPKoQ8mSR5eGS2',
-# }
-
+URL = "https://parseapi.back4app.com/classes/ujikelayakan"
+BACK4APP_HEADERS = {
+    'X-Parse-Application-Id': 'KKRKxZ4aYnuM7e8h7XhQZPUKDwZqfL9D10Z1G5J2',
+    'X-Parse-REST-API-Key': 'XGPv6wGeJ92m7J9giWYxt79bmQIQ9KvxjsFGY2ji',
+    'Content-Type': 'application/json',}
 #Endpoint Backend
 def backend_data():
     try:
-        resp = requests.get(BASE_URL, headers=HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
+        resp = requests.get(URL, headers=BACK4APP_HEADERS, params={"order": "-createdAt", "limit": 1}, timeout=6)
         if resp.status_code == 200:
             return resp.json().get("results", [])
         else:
@@ -108,17 +102,6 @@ if st.session_state.current_path != path:
         st.session_state.start_x1, st.session_state.start_y1 = 335, 150
         st.session_state.start_x2, st.session_state.start_y2 = 335, 150
 
-# Header
-col1, col2, col3, col4 = st.columns([0.6, 4, 4, 1])
-with col1:
-    st.image('./images/logobmrt.png', width=100)
-with col2:
-    st.markdown('<div class="header-text">BARELANG MARINE ROBOTICS TEAM</div>', unsafe_allow_html=True)
-with col3:
-    st.markdown('<div class="header-text">POLITEKNIK NEGERI BATAM</div>', unsafe_allow_html=True)
-with col4:
-    st.image('./images/logopolibatam.png', width=105)
-
 # Judul Lintasan
 if path == "Lintasan A ⚓":
     st.markdown('<div class="judul-text">LINTASAN A</div>', unsafe_allow_html=True)
@@ -127,7 +110,7 @@ else:
 
 # Ambil data backend 
 if st.session_state.run:
-    st_autorefresh(interval=2000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
+    st_autorefresh(interval=5000, key="main_refresh")   #waktu untuk ngerefresh (5 detik)
 
     latest_list = backend_data()
     if latest_list:
@@ -279,13 +262,11 @@ def koordinat_kartesius(path):
 
     return fig
 
-# Layout utama---
-part1, part2, part3 = st.columns([2.1, 1, 0.9])
 
-# Part 1: GEO + MAP
+part1, part2 = st.columns([1, 1])
+
 with part1:
     st.markdown('<div class="judul-text">GEO-TAG INFO</div>', unsafe_allow_html=True)
-
     # metric placeholders
     c1, c2, c3, c4 = st.columns(4)
     day_ph = c1.metric("Day", "—")
@@ -310,104 +291,8 @@ with part1:
         coord_ph.metric("Coordinate", f"S{last.get('Lattitude', '—')} E{last.get('Longitude', '—')}")
         pos_ph.metric("Position [x,y]", f"{last.get('x', '—')}, {last.get('y', '—')}")
 
+with part2:
     st.markdown('<div class="judul-text">TRAJECTORY MAP</div>', unsafe_allow_html=True)
     fig = koordinat_kartesius(path)
     st.pyplot(fig)
 
-# Part 2: POSITION LOG
-with part2:
-    st.markdown('<div class="judul-text">POSITION-LOG</div>', unsafe_allow_html=True)
-    
-    if len(st.session_state.data) > 0:
-        df = pd.DataFrame(list(st.session_state.data))
-
-        # Pilih hanya kolom dari 'Day' sampai 'Longitude'
-        cols = [
-            'Day', 'Date', 'Time', 'x', 'y', 'COG', 'SOG_Knot', 'SOG_kmperhours', 'Lattitude', 'Longitude'
-        ]
-
-        # Tampilkan hanya kolom yang tersedia di df
-        available_cols = [c for c in cols if c in df.columns]
-
-        # Menampilkan 20 data terakhir dengan kolom terbatas
-        st.dataframe(df[available_cols].tail(20).iloc[::-1].reset_index(drop=True))
-    else:
-        st.info("Belum ada data yang ditampilkan. Tekan START untuk memulai monitoring.")
-
-    # --- CHECKPOINT INDICATOR ---
-    st.markdown('<div class="judul-text">CHECKPOINT</div>', unsafe_allow_html=True)
-
-    checkpoints_A = [
-        (2100, 2200, 840, 940),       # A1
-        (2030, 2180, 1100, 1300),     # A2
-        (2175, 2325, 1400, 1600),     # A3
-    ]
-
-    checkpoints_B = [
-        (240, 430, 800, 1000),        # B1
-        (320, 470, 1145, 1175),       # B2
-        (160, 400, 1400, 1500),       # B3
-        (900, 1100, 2000, 2400),      # B4
-        (1100, 1300, 2000, 2400),     # B5
-        (1300, 1500, 2000, 2400),     # B6
-        (1500, 1700, 2000, 2400),     # B7
-        (2000, 2400, 1500, 2000),     # B8
-        (2200, 2450, 1000, 1400),     # B9
-        (2200, 2450, 600, 1000),     # B10
-    ]
-
-    # Pilih lintasan aktif
-    checkpoints = checkpoints_A if path == "Lintasan A ⚓" else checkpoints_B
-
-    # --- LOGIKA PENILAIAN BARU ---
-    if len(st.session_state.data) > 0:
-        last = st.session_state.data[-1]
-        try:
-            x_val = float(last.get("x", 0))
-            y_val = float(last.get("y", 0))
-
-            # Posisi absolut
-            x_abs = st.session_state.start_x + x_val
-            y_abs = st.session_state.start_y + y_val
-
-            # Cek checkpoint aktif sekarang
-            checkpoint_now = 0
-            for i, (xmin, xmax, ymin, ymax) in enumerate(checkpoints, start=1):
-                if xmin < x_abs < xmax and ymin < y_abs < ymax:
-                    checkpoint_now = i
-                    break
-
-            # Jika kapal berada di checkpoint tertentu
-            if checkpoint_now != 0:
-                # Jika checkpoint baru lebih besar dari nilai sebelumnya
-                if checkpoint_now > st.session_state.akusisi_nilai:
-                    st.session_state.akusisi_nilai = checkpoint_now
-
-            # Reset status keluar dari checkpoint (opsional, jika ingin deteksi masuk-keluar)
-            elif checkpoint_now == 0:
-                st.session_state.checkpoint_active = False
-
-        except Exception:
-            pass
-
-    # --- TAMPILKAN HASIL ---
-    st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
-    #st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
-
-# Part 3: IMAGES
-with part3:
-        # SURFACE IMAGE
-    st.markdown('<div class="judul-text">SURFACE IMAGE</div>', unsafe_allow_html=True)
-    surface_path = './images/sbox1.jpg'
-    if os.path.exists(surface_path):
-        st.image(surface_path)
-    else:
-        st.image('./images/surface.jpg')  # gambar cadangan
-
-    # UNDERWATER IMAGE
-    st.markdown('<div class="judul-text">UNDERWATER IMAGE</div>', unsafe_allow_html=True)
-    underwater_path = './images/ubox1.jpg'
-    if os.path.exists(underwater_path):
-        st.image(underwater_path)
-    else:
-        st.image('./images/underwater.jpg')  # gambar cadangan
