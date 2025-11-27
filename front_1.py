@@ -180,6 +180,7 @@ def posisi_floating_ball(path):
                            (1300, 2250), (1460, 2250), (2050, 1715), (2170, 1310), (2170, 960)]
     return red_positions, green_positions
 
+
 # Plot koordinat lintasan
 def koordinat_kartesius(path):
     fig, ax = plt.subplots(figsize=(13, 13))
@@ -286,17 +287,11 @@ with part2:
 
     # --- CHECKPOINT INDICATOR ---
     st.markdown('<div class="judul-text">CHECKPOINT</div>', unsafe_allow_html=True)
+
     checkpoints_A = [
         (2100, 2200, 840, 940),       # A1
         (2030, 2180, 1100, 1300),     # A2
         (2175, 2325, 1400, 1600),     # A3
-        (1400, 1500, 2080, 2280),     # A4
-        (1200, 1300, 2080, 2280),     # A5
-        (1000, 1100, 2080, 2280),     # A6
-        (800, 900, 2080, 2280),       # A7
-        (285, 485, 1600, 1800),       # A8  (floating ball)
-        (200, 300, 1200, 1300),       # A9
-        (280, 290, 840, 860),         # A10
     ]
 
     checkpoints_B = [
@@ -348,7 +343,7 @@ with part2:
 
     # --- TAMPILKAN HASIL ---
     st.write(f'<div class="ind-text"> POINT = {st.session_state.akusisi_nilai}</div>', unsafe_allow_html=True)
-    st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
+    #st.write(f"x_abs={x_abs:.2f}, y_abs={y_abs:.2f}")
 
 # Part 3: IMAGES
 with part3:
