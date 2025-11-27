@@ -131,7 +131,10 @@ if st.session_state.run:
                 st.session_state.checkpoint_active = False
                 if "visited_checkpoints" in st.session_state:
                     st.session_state.visited_checkpoints.clear()
-
+                for i in range(1, 4):
+                    f = f"ubox{i}.jpg"
+                    if os.path.exists(f):
+                        os.remove(f)
                 # Pastikan program tetap lanjut berjalan
                 st.session_state.run = True
                 st.session_state.current_path = path
