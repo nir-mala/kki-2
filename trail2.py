@@ -131,7 +131,11 @@ if st.session_state.run:
                 st.session_state.checkpoint_active = False
                 if "visited_checkpoints" in st.session_state:
                     st.session_state.visited_checkpoints.clear()
-
+                    
+                files_to_delete = files_to_delete = ["images/sbox1.jpg", "images/ubox1.jpg"]
+                for f in files_to_delete:
+                    if os.path.exists(f):
+                        os.remove(f)
                 # Pastikan program tetap lanjut berjalan
                 st.session_state.run = True
                 st.session_state.current_path = path
