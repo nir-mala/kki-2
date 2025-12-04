@@ -13,10 +13,10 @@ with open("new.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Back4App endpoint
-URL = "https://parseapi.back4app.com/classes/ujikelayakan"
+URL = "https://parseapi.back4app.com/classes/kki025juara"
 BACK4APP_HEADERS = {
-    'X-Parse-Application-Id': 'KKRKxZ4aYnuM7e8h7XhQZPUKDwZqfL9D10Z1G5J2',
-    'X-Parse-REST-API-Key': 'XGPv6wGeJ92m7J9giWYxt79bmQIQ9KvxjsFGY2ji',
+    'X-Parse-Application-Id': 'fKvG3VLK1OLtzfJFduPFKVc3ocBYINVzcDZ3Y2hx',
+    'X-Parse-REST-API-Key': 'Fm7yqRiFRRhj4FREJI8Di3eT35BI9JlpO1AqoUtV',
     'Content-Type': 'application/json',}
 
 #Endpoint Backend
